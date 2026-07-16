@@ -19,9 +19,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const user = await login(form.email, form.password);
-      navigate(user.role === 'recruiter' ? '/recruiter' : '/');
+      navigate(user.role === 'recruiter' ? '/recruiter' : '/candidate');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Check your credentials.');
+      const errorMsg = err.response?.data?.message || 
+                       err.response?.data?.errors?.[0]?.msg || 
+                       'Login failed. Check your credentials.';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

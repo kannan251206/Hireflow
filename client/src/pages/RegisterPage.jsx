@@ -29,9 +29,12 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const user = await register(form.name, form.email, form.password, form.role);
-      navigate(user.role === 'recruiter' ? '/recruiter' : '/');
+      navigate(user.role === 'recruiter' ? '/recruiter' : '/candidate');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      const errorMsg = err.response?.data?.message || 
+                       err.response?.data?.errors?.[0]?.msg || 
+                       'Registration failed. Please try again.';
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }

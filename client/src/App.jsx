@@ -26,8 +26,8 @@ function AppRoutes() {
       <Navbar />
       <Routes>
         <Route path="/"          element={<LandingPage />} />
-        <Route path="/login"     element={user ? <Navigate to={user.role === 'recruiter' ? '/recruiter' : '/'} /> : <LoginPage />} />
-        <Route path="/register"  element={user ? <Navigate to={user.role === 'recruiter' ? '/recruiter' : '/'} /> : <RegisterPage />} />
+        <Route path="/login"     element={user ? <Navigate to={user.role === 'recruiter' ? '/recruiter' : '/candidate'} /> : <LoginPage />} />
+        <Route path="/register"  element={user ? <Navigate to={user.role === 'recruiter' ? '/recruiter' : '/candidate'} /> : <RegisterPage />} />
 
         <Route path="/builder"   element={<div className="page-content-wide"><ResumeBuilder /></div>} />
         <Route
