@@ -10,7 +10,21 @@ const app = express();
 
 // --- Middleware ---
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000' }));
+const allowedOrigins = [
+  'http://localhost:3000',
+  process.env.CLIENT_URL,
+].filter(Boolean);
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. curl, Postman) or matching origins
+    if (!origin || allowedOrigins.some(o => origin.startsWith(o))) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+}));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
@@ -73,6 +87,10 @@ async function startServer() {
       }
     }
   } else {
+    if (!process.env.MONGODB_URI) {
+      console.error('❌  MONGODB_URI environment variable is not set. Please add it in your hosting dashboard (Render → Environment).');
+      process.exit(1);
+    }
     try {
       await mongoose.connect(MONGO_URI);
       console.log('✅  MongoDB connected');
