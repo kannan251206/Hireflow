@@ -1,0 +1,148 @@
+.wrap {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.heading {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.rowMain {
+  display: grid;
+  grid-template-columns: 48px 1fr 200px 40px;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.rowMain:hover { background: var(--color-bg); }
+
+.rank {
+  font-size: 18px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.rankTop { font-size: 22px; }
+
+.candidate {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.candidateAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-brand-light);
+  color: var(--color-brand);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.candidateName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.scoreCol { min-width: 0; }
+
+.barWrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.barTrack {
+  flex: 1;
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.barLabel {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 36px;
+  text-align: right;
+}
+
+.expandBtn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.detail {
+  border-top: 1px solid var(--color-border);
+  padding: 16px 20px;
+  background: var(--color-bg);
+}
+
+.kwGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.kwTitle {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+@media (max-width: 600px) {
+  .rowMain { grid-template-columns: 40px 1fr 40px; }
+  .scoreCol { display: none; }
+  .kwGrid { grid-template-columns: 1fr; }
+}

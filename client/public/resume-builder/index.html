@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Resume Builder</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ============ SCREEN 1: TEMPLATE GALLERY ============ -->
+<div id="gallery-screen" class="gallery-screen">
+  <div class="gallery-inner">
+    <h1>Choose a resume template</h1>
+    <p class="subtitle">Pick a design to start. You can switch templates anytime without losing your details.</p>
+
+    <div class="template-grid">
+
+      <div class="template-card" data-template="bold" onclick="selectTemplate('bold')" tabindex="0" role="button" aria-label="Choose Bold Minimal template">
+        <img src="tpl-bold.png" alt="Bold Minimal resume template preview" />
+        <div class="template-card-body">
+          <div class="template-card-name">Bold Minimal</div>
+          <div class="template-card-desc">Big name header, light sidebar for education &amp; skills.</div>
+        </div>
+      </div>
+
+      <div class="template-card" data-template="executive" onclick="selectTemplate('executive')" tabindex="0" role="button" aria-label="Choose Executive Photo template">
+        <img src="tpl-executive.png" alt="Executive Photo resume template preview" />
+        <div class="template-card-body">
+          <div class="template-card-name">Executive Photo</div>
+          <div class="template-card-desc">Navy header with photo, sidebar contact &amp; timeline.</div>
+        </div>
+      </div>
+
+      <div class="template-card" data-template="clean" onclick="selectTemplate('clean')" tabindex="0" role="button" aria-label="Choose Clean ATS template">
+        <img src="tpl-clean.png" alt="Clean ATS resume template preview" />
+        <div class="template-card-body">
+          <div class="template-card-name">Clean ATS</div>
+          <div class="template-card-desc">Single column, no graphics — built for applicant systems.</div>
+        </div>
+      </div>
+
+      <div class="template-card" data-template="soft" onclick="selectTemplate('soft')" tabindex="0" role="button" aria-label="Choose Soft Modern template">
+        <img src="tpl-soft.png" alt="Soft Modern resume template preview" />
+        <div class="template-card-body">
+          <div class="template-card-name">Soft Modern</div>
+          <div class="template-card-desc">Light banner header, roomy single-column body.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ SCREEN 2: BUILDER ============ -->
+<div class="app" id="app-screen" style="display:none;">
+
+  <!-- ============ LEFT: FORM PANEL ============ -->
+  <div class="form-panel">
+    <div class="form-panel-top">
+      <div>
+        <h1>Resume Builder</h1>
+        <p class="subtitle">Fill in the sections below — your resume updates live on the right.</p>
+      </div>
+      <button type="button" class="btn-change-template" onclick="showGallery()">⤺ Change template</button>
+    </div>
+
+    <!-- Personal Info -->
+    <section class="form-section">
+      <h2>Personal Info</h2>
+      <div class="field" id="photo-field">
+        <label>Photo (optional — used by photo templates)</label>
+        <div class="photo-row">
+          <div class="photo-preview" id="photo-preview">No photo</div>
+          <input id="p-photo" type="file" accept="image/*" />
+          <button type="button" class="btn-small" id="photo-remove" onclick="removePhoto()">Remove</button>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field"><label>Full Name</label><input id="p-name" type="text" placeholder="Rakesh Kulkarni" /></div>
+        <div class="field"><label>Job Title / Role</label><input id="p-title" type="text" placeholder="Web Developer" /></div>
+        <div class="field"><label>Phone</label><input id="p-phone" type="text" placeholder="98343-93439" /></div>
+        <div class="field"><label>Email</label><input id="p-email" type="email" placeholder="you@example.com" /></div>
+        <div class="field"><label>Location</label><input id="p-location" type="text" placeholder="Chennai, TN" /></div>
+        <div class="field"><label>LinkedIn URL</label><input id="p-linkedin" type="text" placeholder="linkedin.com/in/username" /></div>
+        <div class="field"><label>GitHub / Portfolio URL</label><input id="p-github" type="text" placeholder="github.com/username" /></div>
+      </div>
+    </section>
+
+    <!-- Executive Summary -->
+    <section class="form-section">
+      <h2>Executive Summary</h2>
+      <div class="field">
+        <label>3-4 line summary: your skills, what the role needs, why you fit</label>
+        <textarea id="p-summary" rows="4" placeholder="Skilled in software development and data analysis..."></textarea>
+      </div>
+    </section>
+
+    <!-- Technical Skills -->
+    <section class="form-section">
+      <h2>Technical Skills</h2>
+      <div id="tech-skills-list"></div>
+      <button type="button" class="btn-add" onclick="addTechSkillCategory()"><i class="icon">+</i> Add category</button>
+    </section>
+
+    <!-- Soft Skills -->
+    <section class="form-section">
+      <h2>Soft Skills</h2>
+      <div id="soft-skills-list"></div>
+      <button type="button" class="btn-add" onclick="addSoftSkill()"><i class="icon">+</i> Add soft skill</button>
+    </section>
+
+    <!-- Professional Experience -->
+    <section class="form-section">
+      <h2>Professional Experience</h2>
+      <div id="experience-list"></div>
+      <button type="button" class="btn-add" onclick="addExperience()"><i class="icon">+</i> Add experience</button>
+    </section>
+
+    <!-- Education -->
+    <section class="form-section">
+      <h2>Education</h2>
+      <div id="education-list"></div>
+      <button type="button" class="btn-add" onclick="addEducation()"><i class="icon">+</i> Add education</button>
+    </section>
+
+    <!-- Awards -->
+    <section class="form-section">
+      <h2>Awards &amp; Accomplishments</h2>
+      <div id="awards-list"></div>
+      <button type="button" class="btn-add" onclick="addAward()"><i class="icon">+</i> Add award</button>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn-primary" onclick="downloadPDF()">Download as PDF</button>
+      <button type="button" class="btn-secondary" onclick="saveDraft()">Save draft</button>
+      <button type="button" class="btn-secondary" onclick="loadDraft()">Load draft</button>
+    </div>
+  </div>
+
+  <!-- ============ RIGHT: LIVE PREVIEW ============ -->
+  <div class="preview-panel">
+    <div class="preview-toolbar no-print">
+      <span>Live preview — <strong id="current-template-label">Bold Minimal</strong></span>
+      <button type="button" class="btn-change-template" onclick="showGallery()">Switch template</button>
+    </div>
+    <div id="resume-preview" class="resume-page">
+      <!-- populated by script.js -->
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

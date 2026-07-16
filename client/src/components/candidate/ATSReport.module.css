@@ -1,0 +1,171 @@
+.wrap {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.scoreBadge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  min-width: 80px;
+  text-align: center;
+}
+.scoreBadge[data-color="green"] { background: var(--color-brand-light); }
+.scoreBadge[data-color="blue"]  { background: var(--color-blue-light); }
+.scoreBadge[data-color="amber"] { background: var(--color-amber-light); }
+.scoreBadge[data-color="red"]   { background: var(--color-red-light); }
+
+.scoreNum {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.scoreBadge[data-color="green"] .scoreNum { color: var(--color-brand); }
+.scoreBadge[data-color="blue"]  .scoreNum { color: var(--color-blue); }
+.scoreBadge[data-color="amber"] .scoreNum { color: var(--color-amber); }
+.scoreBadge[data-color="red"]   .scoreNum { color: var(--color-red); }
+
+.scoreLabel {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.barWrap { margin-bottom: 8px; }
+.barTrack {
+  height: 8px;
+  background: var(--color-border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.barFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1s ease;
+}
+.barFill[data-color="green"] { background: var(--color-brand); }
+.barFill[data-color="blue"]  { background: var(--color-blue); }
+.barFill[data-color="amber"] { background: var(--color-amber); }
+.barFill[data-color="red"]   { background: var(--color-red); }
+
+.summaryMsg {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.checkCard {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
+}
+.checkCard[data-status="pass"] { border-color: var(--color-role-green-border); background: var(--color-brand-light); }
+.checkCard[data-status="warn"] { border-color: var(--color-role-amber-border); background: var(--color-amber-light); }
+.checkCard[data-status="fail"] { border-color: var(--color-role-red-border); background: var(--color-red-light); }
+
+.checkHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.checkIcon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.checkIcon[data-status="pass"] { background: var(--color-brand); color: #fff; }
+.checkIcon[data-status="warn"] { background: var(--color-amber); color: #fff; }
+.checkIcon[data-status="fail"] { background: var(--color-red); color: #fff; }
+
+.checkTitle {
+  font-size: 13px;
+  font-weight: 600;
+  flex: 1;
+  color: var(--color-text-primary);
+}
+
+.checkScore {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  padding: 2px 7px;
+  border-radius: 99px;
+  border: 1px solid var(--color-border);
+}
+
+.checkMsg {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.checkTip {
+  font-size: 12px;
+  color: var(--color-amber);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 500;
+}
+.tagGreen { background: var(--color-brand-light); color: var(--color-brand-dark); }
+.tagRed   { background: var(--color-red-light); color: var(--color-red); }
+
+.wordCount {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}

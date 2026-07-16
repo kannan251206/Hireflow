@@ -1,0 +1,45 @@
+.zone {
+  border: 1.5px dashed var(--color-border-md);
+  border-radius: var(--radius-lg);
+  padding: 36px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--color-bg);
+}
+.zone:hover, .active {
+  border-color: var(--color-brand);
+  background: var(--color-brand-light);
+}
+
+.icon {
+  color: var(--color-text-muted);
+  margin-bottom: 12px;
+}
+.active .icon { color: var(--color-brand); }
+
+.hint {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+.hint strong { color: var(--color-text-primary); }
+
+.fileList {
+  list-style: none;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}

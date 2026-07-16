@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Local env files (MUST be ignored to avoid exposing keys/secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+server/.env
+server/.env.local
+
+# Production/build files
+client/build/
+client/dist/
+
+# Database / temporary data files
+db-data/
+server/db-data/
+
+# OS/System files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor/IDE directories
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

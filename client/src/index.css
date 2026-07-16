@@ -1,0 +1,414 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+/* ── Design tokens ─────────────────────────────────────── */
+:root {
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+
+  --color-bg:         #f5f4f0;
+  --color-surface:    #ffffff;
+  --color-border:     #e4e2db;
+  --color-border-md:  #cbc9c2;
+
+  --color-text-primary:   #1a1916;
+  --color-text-secondary: #5c5b57;
+  --color-text-muted:     #9a9893;
+
+  --color-brand:        #1a6b4a;
+  --color-brand-light:  #e8f5ef;
+  --color-brand-dark:   #124e36;
+
+  --color-amber:        #b45309;
+  --color-amber-light:  #fef3c7;
+  --color-red:          #dc2626;
+  --color-red-light:    #fef2f2;
+  --color-blue:         #1d4ed8;
+  --color-blue-light:   #eff6ff;
+
+  --color-badge-gray-bg: #f1f0eb;
+  --color-nav-bg: rgba(245, 244, 240, 0.9);
+
+  --color-role-green-border: #a7d9c3;
+  --color-role-blue-border: #bfdbfe;
+  --color-role-amber-border: #fcd34d;
+  --color-role-red-border: #fca5a5;
+
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  16px;
+  --radius-xl:  24px;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+}
+
+[data-theme='dark'] {
+  --color-bg:         #121212;
+  --color-surface:    #1e1e1e;
+  --color-border:     #2d2d2d;
+  --color-border-md:  #444444;
+
+  --color-text-primary:   #f5f5f5;
+  --color-text-secondary: #a0a0a0;
+  --color-text-muted:     #6a6a6a;
+
+  --color-brand:        #2ea874;
+  --color-brand-light:  #143527;
+  --color-brand-dark:   #4cd195;
+
+  --color-amber:        #f59e0b;
+  --color-amber-light:  #3b2300;
+  --color-red:          #ef4444;
+  --color-red-light:    #3b0f0f;
+  --color-blue:         #3b82f6;
+  --color-blue-light:   #172554;
+
+  --color-badge-gray-bg: #2d2d2d;
+  --color-nav-bg: rgba(18, 18, 18, 0.9);
+
+  --color-role-green-border: #2ea874;
+  --color-role-blue-border: #3b82f6;
+  --color-role-amber-border: #f59e0b;
+  --color-role-red-border: #ef4444;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.25);
+}
+
+/* ── Reset ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select { font-family: inherit; }
+
+/* ── Layout helpers ─────────────────────────────────────── */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.page-content {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.page-content-wide {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+
+/* ── Card ───────────────────────────────────────────────── */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── Buttons ────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--color-brand);
+  color: #fff;
+  border-color: var(--color-brand);
+}
+.btn-primary:hover:not(:disabled) { background: var(--color-brand-dark); }
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-md);
+}
+.btn-secondary:hover:not(:disabled) { background: var(--color-bg); }
+
+.btn-lg {
+  padding: 13px 28px;
+  font-size: 15px;
+  border-radius: var(--radius-md);
+}
+
+/* ── Form elements ──────────────────────────────────────── */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.01em;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  transition: border-color 0.15s;
+  outline: none;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 3px rgba(26, 107, 74, 0.1);
+}
+
+.form-textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+
+/* ── Badge ──────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+.badge-green  { background: var(--color-brand-light); color: var(--color-brand-dark); }
+.badge-amber  { background: var(--color-amber-light); color: var(--color-amber); }
+.badge-red    { background: var(--color-red-light);   color: var(--color-red); }
+.badge-blue   { background: var(--color-blue-light);  color: var(--color-blue); }
+.badge-gray   { background: var(--color-badge-gray-bg); color: var(--color-text-secondary); }
+
+/* ── Score ring ─────────────────────────────────────────── */
+.score-ring-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
+.score-ring-label { position: absolute; text-align: center; }
+
+/* ── Keyword pill ───────────────────────────────────────── */
+.kw-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid;
+}
+.kw-pill-matched {
+  background: var(--color-brand-light);
+  border-color: #a7d9c3;
+  color: var(--color-brand-dark);
+}
+.kw-pill-missing {
+  background: var(--color-red-light);
+  border-color: #fca5a5;
+  color: var(--color-red);
+}
+
+/* ── Divider ────────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 24px 0;
+}
+
+/* ── Util ───────────────────────────────────────────────── */
+.text-muted   { color: var(--color-text-muted); font-size: 13px; }
+.text-sm      { font-size: 13px; }
+.text-center  { text-align: center; }
+.mt-4  { margin-top: 4px; }
+.mt-8  { margin-top: 8px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+.mt-32 { margin-top: 32px; }
+.flex  { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-8  { gap: 8px; }
+.gap-12 { gap: 12px; }
+.gap-16 { gap: 16px; }
+.gap-24 { gap: 24px; }
+.w-full { width: 100%; }
+
+/* ── Spinner ────────────────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner {
+  width: 20px; height: 20px;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-brand);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: inline-block;
+}
+
+/* ── Animations ─────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.3s ease forwards; }
+
+/* ── Premium Pop Up / Lift Effects on Hover ──────────────── */
+
+/* Buttons */
+.btn {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(26, 107, 74, 0.25) !important;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0) scale(1.0) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Bordered Cards, Sections, and List Items */
+.card,
+[class*="roleCard"],
+[class*="featureCard"],
+[class*="kwSection"],
+[class*="suggestions"],
+[class*="checkCard"],
+[class*="HistoryPanel_item"],
+[class*="AISuggestions_card"],
+[class*="AISuggestions_wrap"],
+[class*="ATSReport_wrap"] {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.card:hover,
+[class*="roleCard"]:hover,
+[class*="featureCard"]:hover,
+[class*="kwSection"]:hover,
+[class*="suggestions"]:hover,
+[class*="checkCard"]:hover,
+[class*="HistoryPanel_item"]:hover,
+[class*="AISuggestions_card"]:hover,
+[class*="AISuggestions_wrap"]:hover,
+[class*="ATSReport_wrap"]:hover {
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08), 0 4px 10px rgba(0, 0, 0, 0.03) !important;
+  border-color: var(--color-brand) !important;
+}
+
+/* Form Inputs dynamic focus lift */
+.form-input,
+.form-textarea,
+.form-select {
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(26, 107, 74, 0.08), 0 0 0 3px rgba(26, 107, 74, 0.1) !important;
+}
+
+/* ── Print Stylesheet ────────────────────────────────────── */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .printableResume,
+  .printableResume * {
+    visibility: visible !important;
+  }
+  .printableResume {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+  .no-print,
+  .no-print * {
+    display: none !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
+  }
+}
+
+/* ── Password Toggle ────────────────────────────────────── */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.password-input-wrapper .form-input {
+  width: 100%;
+  padding-right: 46px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 10;
+}
+
+.password-toggle-btn:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-border-md);
+  transform: scale(1.05);
+}
+
+.password-toggle-btn:focus {
+  outline: 2px solid var(--color-brand);
+  outline-offset: -2px;
+}
+
+

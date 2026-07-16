@@ -1,0 +1,451 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: #f4f5f7;
+  color: #1f2430;
+}
+
+/* ============================================================
+   GALLERY SCREEN
+   ============================================================ */
+.gallery-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px;
+}
+.gallery-inner { max-width: 1000px; width: 100%; text-align: center; }
+.gallery-inner h1 { font-size: 28px; margin: 0 0 8px; }
+.gallery-inner .subtitle { color: #6b7280; margin: 0 0 36px; font-size: 14px; }
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 24px;
+}
+.template-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.template-card:hover,
+.template-card:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+  border-color: #4f46e5;
+  outline: none;
+}
+.template-card img {
+  width: 100%;
+  display: block;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f4f5f7;
+}
+.template-card-body { padding: 12px 14px 16px; }
+.template-card-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.template-card-desc { font-size: 12px; color: #6b7280; line-height: 1.4; }
+
+/* ============================================================
+   APP LAYOUT
+   ============================================================ */
+.app {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ---------- FORM PANEL ---------- */
+.form-panel {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+
+.form-panel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.form-panel h1 { margin: 0 0 4px; font-size: 22px; }
+.subtitle { margin: 0 0 20px; color: #6b7280; font-size: 13px; }
+
+.btn-change-template {
+  flex-shrink: 0;
+  font-size: 12px;
+  background: #eef2ff;
+  color: #4338ca;
+  border: none;
+  padding: 7px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-change-template:hover { background: #e0e7ff; }
+
+.form-section {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 16px;
+  margin-top: 16px;
+}
+.form-section h2 {
+  font-size: 15px;
+  margin: 0 0 12px;
+  color: #111827;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+}
+
+.field { margin-bottom: 10px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+}
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 2px rgba(79,70,229,0.15);
+}
+
+.photo-row { display: flex; align-items: center; gap: 10px; }
+.photo-preview {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; color: #9ca3af; text-align: center;
+  overflow: hidden; flex-shrink: 0;
+}
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+.photo-row input[type="file"] { flex: 1; font-size: 12px; }
+
+.card-block {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  position: relative;
+}
+.card-block .remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 13px;
+}
+.bullets-list { margin-top: 8px; }
+.bullet-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.bullet-row input { flex: 1; }
+.bullet-row button {
+  border: none;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 6px;
+  width: 28px;
+  cursor: pointer;
+}
+.btn-small {
+  font-size: 12px;
+  background: #eef2ff;
+  color: #4338ca;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.btn-add {
+  width: 100%;
+  padding: 9px;
+  background: #f3f4f6;
+  border: 1px dashed #9ca3af;
+  border-radius: 8px;
+  color: #374151;
+  font-size: 13px;
+  cursor: pointer;
+}
+.btn-add:hover { background: #e5e7eb; }
+
+.actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn-primary {
+  background: #4f46e5;
+  color: #fff;
+  border: none;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-primary:hover { background: #4338ca; }
+.btn-secondary {
+  background: #fff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 11px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn-secondary:hover { background: #f3f4f6; }
+
+/* ---------- PREVIEW PANEL ---------- */
+.preview-panel {
+  background: #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.preview-toolbar {
+  width: 100%;
+  max-width: 800px;
+  color: #6b7280;
+  font-size: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.preview-toolbar strong { color: #374151; }
+
+.resume-page {
+  width: 100%;
+  max-width: 800px;
+  min-height: 1000px;
+  background: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.15);
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  overflow: hidden;
+}
+
+.r-empty-hint { color: #b0b0b0; font-style: italic; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   TEMPLATE 1 — BOLD MINIMAL  (class: tpl-bold)
+   Big bold name header, thin rules, light-gray sidebar left.
+   ============================================================ */
+.tpl-bold { padding: 0; }
+.tpl-bold .rb-header { padding: 42px 50px 18px; }
+.tpl-bold .rb-name { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; line-height: 1.1; }
+.tpl-bold .rb-title { font-size: 15px; color: #4b5563; margin-top: 4px; }
+.tpl-bold .rb-contact-line {
+  font-size: 11pt; color: #374151; margin-top: 16px; padding-top: 14px;
+  border-top: 1px solid #d1d5db;
+}
+.tpl-bold .rb-contact-line a { color: #374151; text-decoration: none; }
+.tpl-bold .rb-body { display: grid; grid-template-columns: 34% 66%; border-top: 1px solid #d1d5db; }
+.tpl-bold .rb-sidebar { background: #f4f5f5; padding: 26px 28px; }
+.tpl-bold .rb-main { padding: 26px 40px; border-left: 1px solid #d1d5db; }
+.tpl-bold .rb-h {
+  font-size: 10.5pt; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+  margin: 26px 0 10px;
+}
+.tpl-bold .rb-sidebar .rb-h:first-child,
+.tpl-bold .rb-main .rb-h:first-child { margin-top: 0; }
+.tpl-bold .rb-sidebar .rb-list { list-style: none; padding: 0; margin: 0 0 4px; }
+.tpl-bold .rb-sidebar .rb-list li { font-size: 11pt; padding: 3px 0; }
+.tpl-bold .rb-edu-item, .tpl-bold .rb-award-item { margin-bottom: 12px; }
+.tpl-bold .rb-edu-item .rb-bold { font-size: 11pt; font-weight: 700; }
+.tpl-bold .rb-edu-item .rb-sub { font-size: 10.5pt; color: #4b5563; }
+.tpl-bold .rb-text { font-size: 11.5pt; line-height: 1.5; color: #374151; margin: 0; }
+.tpl-bold .rb-main .rb-list { padding-left: 18px; margin: 0 0 6px; font-size: 11.5pt; line-height: 1.45; }
+.tpl-bold .rb-entry { margin-bottom: 14px; }
+.tpl-bold .rb-entry-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 11.5pt; }
+.tpl-bold .rb-entry-role { font-size: 11pt; color: #4b5563; margin: 1px 0 4px; }
+.tpl-bold .rb-ref-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.tpl-bold .rb-ref-name { font-weight: 700; font-size: 11pt; }
+.tpl-bold .rb-ref-role { font-size: 10.5pt; color: #4b5563; margin-bottom: 4px; }
+.tpl-bold .rb-ref-detail { font-size: 10pt; color: #4b5563; }
+
+/* ============================================================
+   TEMPLATE 2 — EXECUTIVE PHOTO  (class: tpl-executive)
+   Navy header banner with photo, gray sidebar, timeline main.
+   ============================================================ */
+.tpl-executive .rb-banner {
+  background: #262f45; color: #fff;
+  display: flex; align-items: center; gap: 24px;
+  padding: 32px 40px;
+}
+.tpl-executive .rb-photo {
+  width: 92px; height: 92px; border-radius: 50%;
+  background: #4b5468; border: 3px solid rgba(255,255,255,0.6);
+  overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: #cbd2e0;
+}
+.tpl-executive .rb-photo img { width: 100%; height: 100%; object-fit: cover; }
+.tpl-executive .rb-name { font-size: 26px; font-weight: 800; letter-spacing: 0.5px; }
+.tpl-executive .rb-title { font-size: 13.5pt; color: #cdd3e0; margin-top: 4px; letter-spacing: 1px; }
+.tpl-executive .rb-body { display: grid; grid-template-columns: 32% 68%; }
+.tpl-executive .rb-sidebar { background: #eef0f3; padding: 26px 26px; }
+.tpl-executive .rb-main { padding: 26px 34px; }
+.tpl-executive .rb-h {
+  font-size: 10.5pt; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;
+  color: #262f45; margin: 22px 0 10px; display: flex; align-items: center; gap: 8px;
+}
+.tpl-executive .rb-sidebar .rb-h:first-child, .tpl-executive .rb-main .rb-h:first-child { margin-top: 0; }
+.tpl-executive .rb-sidebar .rb-list { list-style: none; padding: 0; margin: 0; }
+.tpl-executive .rb-sidebar .rb-list li { font-size: 10.5pt; padding: 3px 0; color: #333; }
+.tpl-executive .rb-ref-name { font-weight: 700; font-size: 10.5pt; }
+.tpl-executive .rb-ref-role { font-size: 10pt; color: #555; margin-bottom: 4px; }
+.tpl-executive .rb-ref-detail { font-size: 9.5pt; color: #555; }
+.tpl-executive .rb-text { font-size: 11.5pt; line-height: 1.5; color: #333; margin: 0; }
+.tpl-executive .rb-timeline { border-left: 2px solid #d7dae2; padding-left: 20px; margin-left: 4px; }
+.tpl-executive .rb-entry { position: relative; margin-bottom: 16px; }
+.tpl-executive .rb-entry::before {
+  content: ""; position: absolute; left: -25px; top: 4px;
+  width: 9px; height: 9px; border-radius: 50%; background: #262f45;
+}
+.tpl-executive .rb-entry-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 11.5pt; color: #1c2233; }
+.tpl-executive .rb-entry-role { font-size: 10.5pt; color: #555; margin: 1px 0 4px; }
+.tpl-executive .rb-main .rb-list { padding-left: 18px; margin: 0; font-size: 11pt; line-height: 1.4; color: #333; }
+
+/* ============================================================
+   TEMPLATE 3 — CLEAN ATS  (class: tpl-clean)
+   Single column, no color, plain black headers + underline.
+   ============================================================ */
+.tpl-clean { padding: 40px 48px; }
+.tpl-clean .rb-name { font-size: 26px; font-weight: 800; }
+.tpl-clean .rb-title { font-size: 14pt; color: #333; margin: 2px 0 8px; }
+.tpl-clean .rb-contact-line { font-size: 11pt; color: #333; border-bottom: 2px solid #1a1a1a; padding-bottom: 12px; margin-bottom: 4px; }
+.tpl-clean .rb-h {
+  font-size: 12pt; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
+  border-bottom: 1px solid #1a1a1a; padding-bottom: 3px; margin: 20px 0 8px;
+}
+.tpl-clean .rb-text { font-size: 11pt; line-height: 1.5; margin: 0; }
+.tpl-clean .rb-list { padding-left: 18px; margin: 0 0 6px; font-size: 11pt; line-height: 1.45; }
+.tpl-clean .rb-entry { margin-bottom: 10px; }
+.tpl-clean .rb-entry-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 11.5pt; }
+.tpl-clean .rb-entry-role { font-size: 10.5pt; font-style: italic; color: #333; margin: 0 0 3px; }
+.tpl-clean .rb-inline-list { font-size: 11pt; margin: 0 0 6px; }
+.tpl-clean .rb-inline-list b { font-weight: 700; }
+
+/* ============================================================
+   TEMPLATE 4 — SOFT MODERN  (class: tpl-soft)
+   Light gray banner header, single column, rule-extended headings.
+   ============================================================ */
+.tpl-soft .rb-banner {
+  background: #f2f3f5; padding: 30px 46px;
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;
+}
+.tpl-soft .rb-name { font-size: 24px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.15; }
+.tpl-soft .rb-title { font-size: 12pt; color: #4b5563; margin-top: 2px; }
+.tpl-soft .rb-contact-block { font-size: 10.5pt; color: #374151; text-align: right; line-height: 1.6; }
+.tpl-soft .rb-main { padding: 26px 46px 40px; }
+.tpl-soft .rb-h {
+  font-size: 11.5pt; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 10px; margin: 20px 0 8px; color: #1f2430;
+}
+.tpl-soft .rb-h::after { content: ""; flex: 1; height: 1px; background: #d1d5db; }
+.tpl-soft .rb-text { font-size: 11pt; line-height: 1.55; margin: 0; color: #333; }
+.tpl-soft .rb-entry { margin-bottom: 12px; }
+.tpl-soft .rb-entry-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 11.5pt; }
+.tpl-soft .rb-entry-role { font-size: 10.5pt; color: #4b5563; margin: 1px 0 3px; }
+.tpl-soft .rb-list { padding-left: 18px; margin: 0 0 6px; font-size: 11pt; line-height: 1.4; }
+.tpl-soft .rb-skills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px 10px; list-style: none; padding: 0; margin: 0; }
+.tpl-soft .rb-skills-grid li { font-size: 11pt; padding: 2px 0; }
+.tpl-soft .rb-skills-grid li::before { content: "• "; }
+
+/* ---------- PRINT ---------- */
+@media print {
+  /* Retain background colors/images on templates (sidebar, headers) */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  body {
+    background: #fff !important;
+    color: #1a1a1a !important;
+  }
+  
+  /* Hide gallery, form controls, toolbar, and other non-print items */
+  #gallery-screen,
+  .form-panel,
+  .preview-toolbar,
+  .no-print,
+  button {
+    display: none !important;
+  }
+  
+  /* Reset container layout to make the resume occupy the whole print canvas */
+  .app {
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  
+  .preview-panel {
+    background: none !important;
+    padding: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+    width: 100% !important;
+  }
+  
+  .resume-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    border: none !important;
+  }
+}
