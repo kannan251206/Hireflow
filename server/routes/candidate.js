@@ -1,12 +1,11 @@
 const router = require('express').Router();
-const jwt = require('jsonwebtoken');
 const { handleSingleUpload } = require('../middleware/upload');
 const { extractText } = require('../services/resumeParser');
 const { extractKeywords } = require('../services/keywordExtractor');
 const { analyzeMatch } = require('../services/matcher');
 const { runATSCheck } = require('../services/atsScorer');
 const { getAISuggestions } = require('../services/aiSuggestions');
-const { Resume, JobDescription, Result } = require('../models');
+const { verifyToken, saveAnalysis, getUserHistory } = require('../services/db');
 
 // POST /api/candidate/analyze
 router.post('/analyze', handleSingleUpload, async (req, res, next) => {
@@ -30,17 +29,24 @@ router.post('/analyze', handleSingleUpload, async (req, res, next) => {
     let savedResult = null;
     if (req.headers.authorization) {
       try {
-        const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
-        const resume = await Resume.create({ userId: decoded.id, originalName: req.file.originalname, extractedText: resumeText, keywords: resumeKeywords });
-        const jd = await JobDescription.create({ userId: decoded.id, text: req.body.jobDescription, title: req.body.jobTitle || 'Untitled Position', keywords: jobKeywords });
-        savedResult = await Result.create({
-          resumeId: resume._id, jobDescriptionId: jd._id,
-          originalFileName: req.file.originalname, jobTitle: req.body.jobTitle || 'Untitled Position',
-          matchScore: analysis.matchScore, atsScore: atsResult.atsScore, overallScore,
-          matchedKeywords: analysis.matchedKeywords, missingKeywords: analysis.missingKeywords,
-          suggestions: analysis.suggestions, atsChecks: atsResult.checks, aiSuggestions: aiResult.suggestions,
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = await verifyToken(token);
+        savedResult = await saveAnalysis({
+          userId: decoded.id,
+          resumeName: req.file.originalname,
+          resumeText,
+          resumeKeywords,
+          jobTitle: req.body.jobTitle || 'Untitled Position',
+          jobDescription: req.body.jobDescription,
+          jobKeywords,
+          analysis,
+          atsResult,
+          overallScore,
+          aiResult
         });
-      } catch { /* continue without saving */ }
+      } catch (err) {
+        console.warn('⚠️ Could not save candidate analysis history:', err.message);
+      }
     }
 
     res.json({
@@ -61,15 +67,16 @@ router.post('/analyze', handleSingleUpload, async (req, res, next) => {
 router.get('/history', async (req, res, next) => {
   try {
     if (!req.headers.authorization) return res.status(401).json({ success: false, message: 'Login required' });
-    const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.JWT_SECRET);
-    const userResumes = await Resume.find({ userId: decoded.id }).select('_id');
-    const resumeIds = userResumes.map(r => r._id);
-    const results = await Result.find({ resumeId: { $in: resumeIds } })
-      .populate('resumeId', 'originalName')
-      .populate('jobDescriptionId', 'title')
-      .sort({ createdAt: -1 }).limit(20);
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = await verifyToken(token);
+    const results = await getUserHistory(decoded.id);
     res.json({ success: true, data: results });
-  } catch (err) { next(err); }
+  } catch (err) {
+    if (err.status) {
+      return res.status(err.status).json({ success: false, message: err.message });
+    }
+    next(err);
+  }
 });
 
 module.exports = router;

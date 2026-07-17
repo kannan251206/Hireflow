@@ -1,10 +1,6 @@
 const router = require('express').Router();
-const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const User = require('../models/User');
-
-const signToken = (id) =>
-  jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+const { registerUser, loginUser } = require('../services/db');
 
 // POST /api/auth/register
 router.post(
@@ -23,21 +19,17 @@ router.post(
       }
 
       const { name, email, password, role } = req.body;
-
-      const existing = await User.findOne({ email });
-      if (existing) {
-        return res.status(409).json({ success: false, message: 'Email already registered' });
-      }
-
-      const user = await User.create({ name, email, password, role });
-      const token = signToken(user._id);
+      const { token, user } = await registerUser({ name, email, password, role });
 
       res.status(201).json({
         success: true,
         token,
-        user: { id: user._id, name: user.name, email: user.email, role: user.role },
+        user,
       });
     } catch (err) {
+      if (err.status) {
+        return res.status(err.status).json({ success: false, message: err.message });
+      }
       next(err);
     }
   }
@@ -58,20 +50,17 @@ router.post(
       }
 
       const { email, password } = req.body;
-      const user = await User.findOne({ email });
-
-      if (!user || !(await user.comparePassword(password))) {
-        return res.status(401).json({ success: false, message: 'Invalid credentials' });
-      }
-
-      const token = signToken(user._id);
+      const { token, user } = await loginUser({ email, password });
 
       res.json({
         success: true,
         token,
-        user: { id: user._id, name: user.name, email: user.email, role: user.role },
+        user,
       });
     } catch (err) {
+      if (err.status) {
+        return res.status(err.status).json({ success: false, message: err.message });
+      }
       next(err);
     }
   }
