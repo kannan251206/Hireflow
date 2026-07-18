@@ -1,170 +1,156 @@
-const { createClient } = require('@supabase/supabase-js');
-const mongoose = require('mongoose');
+const { Pool } = require('pg');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
-const isSupabase = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
+const sslConfig = process.env.DATABASE_URL && (
+  process.env.DATABASE_URL.includes('neon.tech') || 
+  process.env.DATABASE_URL.includes('supabase.co') ||
+  process.env.NODE_ENV === 'production'
+) ? { rejectUnauthorized: false } : false;
 
-let supabase = null;
-if (isSupabase) {
-  supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-  console.log('🔌 Supabase configuration loaded for database and auth');
-}
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: sslConfig,
+});
 
-// Lazy load Mongoose models only if MongoDB is used to prevent errors if Mongo is not connected
-let User, Resume, JobDescription, Result;
-function initMongoModels() {
-  if (!User) {
-    User = require('../models/User');
-    const models = require('../models');
-    Resume = models.Resume;
-    JobDescription = models.JobDescription;
-    Result = models.Result;
+console.log('🔌 PostgreSQL client pool initialized');
+
+// Database Tables Initialization
+async function initDb() {
+  if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes('username:password')) {
+    console.warn('⚠️ DATABASE_URL is not set or contains default credentials. Skipping table initialization.');
+    return;
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // Create users table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create resumes table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS resumes (
+        id SERIAL PRIMARY KEY,
+        user_id INT REFERENCES users(id) ON DELETE CASCADE,
+        original_name VARCHAR(255) NOT NULL,
+        extracted_text TEXT NOT NULL,
+        keywords JSONB DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create job_descriptions table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS job_descriptions (
+        id SERIAL PRIMARY KEY,
+        user_id INT REFERENCES users(id) ON DELETE CASCADE,
+        title VARCHAR(255) DEFAULT 'Untitled Position',
+        text TEXT NOT NULL,
+        keywords JSONB DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // Create results table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS results (
+        id SERIAL PRIMARY KEY,
+        resume_id INT REFERENCES resumes(id) ON DELETE CASCADE,
+        job_description_id INT REFERENCES job_descriptions(id) ON DELETE CASCADE,
+        original_file_name VARCHAR(255),
+        job_title VARCHAR(255) DEFAULT 'Untitled Position',
+        match_score INT NOT NULL,
+        ats_score INT DEFAULT 0,
+        overall_score INT DEFAULT 0,
+        matched_keywords JSONB DEFAULT '[]'::jsonb,
+        missing_keywords JSONB DEFAULT '[]'::jsonb,
+        suggestions JSONB DEFAULT '[]'::jsonb,
+        ats_checks JSONB DEFAULT '[]'::jsonb,
+        ai_suggestions JSONB DEFAULT '[]'::jsonb,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await client.query('COMMIT');
+    console.log('✅ PostgreSQL database tables initialized successfully.');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('❌ Failed to initialize PostgreSQL database tables:', err.message);
+    throw err;
+  } finally {
+    client.release();
   }
 }
 
 // 1. Auth: Register
 async function registerUser({ name, email, password, role }) {
-  if (isSupabase) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { name, role }
-      }
-    });
-
-    if (error) {
-      const err = new Error(error.message);
-      // Supabase defaults to 400 or 422 for signup errors
-      if (error.message.toLowerCase().includes('already registered') || error.message.toLowerCase().includes('exists')) {
-        err.status = 409;
-      } else {
-        err.status = error.status || 400;
-      }
-      throw err;
-    }
-
-    if (!data.session) {
-      // If email confirmation is enabled, session might be null.
-      // Return a message or mock token, but for ease of use we assume confirmation is off or we return user.
-      return {
-        token: 'email_confirmation_required',
-        user: {
-          id: data.user.id,
-          name: data.user.user_metadata.name || name,
-          email: data.user.email,
-          role: data.user.user_metadata.role || role
-        }
-      };
-    }
-
-    // Optional: write to custom profiles/users table for database completeness
-    try {
-      await supabase.from('users').insert({
-        id: data.user.id,
-        name,
-        email,
-        password: '', // Kept empty as Supabase Auth manages passwords securely
-        role
-      });
-    } catch (dbErr) {
-      console.warn('⚠️ Profile table insert skipped or failed:', dbErr.message);
-    }
-
-    return {
-      token: data.session.access_token,
-      user: {
-        id: data.user.id,
-        name: data.user.user_metadata.name,
-        email: data.user.email,
-        role: data.user.user_metadata.role
-      }
-    };
-  } else {
-    initMongoModels();
-    const existing = await User.findOne({ email });
-    if (existing) {
-      const err = new Error('Email already registered');
-      err.status = 409;
-      throw err;
-    }
-    const user = await User.create({ name, email, password, role });
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  const hashedPassword = await bcrypt.hash(password, 12);
+  try {
+    const res = await pool.query(
+      'INSERT INTO users (name, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
+      [name, email.toLowerCase().trim(), hashedPassword, role]
+    );
+    const user = res.rows[0];
+    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
     return {
       token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
+      user
     };
+  } catch (err) {
+    if (err.code === '23505') {
+      const dbErr = new Error('Email already registered');
+      dbErr.status = 409;
+      throw dbErr;
+    }
+    throw err;
   }
 }
 
 // 2. Auth: Login
 async function loginUser({ email, password }) {
-  if (isSupabase) {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      const err = new Error(error.message || 'Invalid credentials');
-      err.status = error.status || 401;
-      throw err;
-    }
-
-    // Write to users table if missing (failsafe)
-    try {
-      await supabase.from('users').insert({
-        id: data.user.id,
-        name: data.user.user_metadata.name,
-        email: data.user.email,
-        password: '',
-        role: data.user.user_metadata.role
-      });
-    } catch (dbErr) {
-      // Ignored
-    }
-
-    return {
-      token: data.session.access_token,
-      user: {
-        id: data.user.id,
-        name: data.user.user_metadata.name,
-        email: data.user.email,
-        role: data.user.user_metadata.role
-      }
-    };
-  } else {
-    initMongoModels();
-    const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
-      const err = new Error('Invalid credentials');
-      err.status = 401;
-      throw err;
-    }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    return {
-      token,
-      user: { id: user._id, name: user.name, email: user.email, role: user.role }
-    };
+  const res = await pool.query(
+    'SELECT id, name, email, password, role FROM users WHERE email = $1',
+    [email.toLowerCase().trim()]
+  );
+  const user = res.rows[0];
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    const err = new Error('Invalid credentials');
+    err.status = 401;
+    throw err;
   }
+  
+  const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+  return {
+    token,
+    user: { id: user.id, name: user.name, email: user.email, role: user.role }
+  };
 }
 
 // 3. Token verification
 async function verifyToken(token) {
-  if (isSupabase) {
-    const { data: { user }, error } = await supabase.auth.getUser(token);
-    if (error || !user) {
-      const err = new Error('Token invalid or expired');
-      err.status = 401;
-      throw err;
-    }
-    return {
-      id: user.id,
-      name: user.user_metadata.name,
-      email: user.email,
-      role: user.user_metadata.role
-    };
-  } else {
-    initMongoModels();
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    return { id: decoded.id };
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const res = await pool.query('SELECT id, name, email, role FROM users WHERE id = $1', [decoded.id]);
+  const user = res.rows[0];
+  if (!user) {
+    const err = new Error('User no longer exists');
+    err.status = 401;
+    throw err;
   }
+  return { id: user.id, name: user.name, email: user.email, role: user.role };
 }
 
 // 4. Save analysis result
@@ -181,129 +167,107 @@ async function saveAnalysis({
   overallScore,
   aiResult
 }) {
-  if (isSupabase) {
-    // 4a. Save Resume
-    const { data: resume, error: resumeErr } = await supabase
-      .from('resumes')
-      .insert({
-        user_id: userId,
-        original_name: resumeName,
-        extracted_text: resumeText,
-        keywords: resumeKeywords
-      })
-      .select()
-      .single();
-    if (resumeErr) throw resumeErr;
-
-    // 4b. Save Job Description
-    const { data: jd, error: jdErr } = await supabase
-      .from('job_descriptions')
-      .insert({
-        user_id: userId,
-        title: jobTitle,
-        text: jobDescription,
-        keywords: jobKeywords
-      })
-      .select()
-      .single();
-    if (jdErr) throw jdErr;
-
-    // 4c. Save Result
-    const { data: result, error: resErr } = await supabase
-      .from('results')
-      .insert({
-        resume_id: resume.id,
-        job_description_id: jd.id,
-        original_file_name: resumeName,
-        job_title: jobTitle,
-        match_score: analysis.matchScore,
-        ats_score: atsResult.atsScore,
-        overall_score: overallScore,
-        matched_keywords: analysis.matchedKeywords,
-        missing_keywords: analysis.missingKeywords,
-        suggestions: analysis.suggestions,
-        ats_checks: atsResult.checks,
-        ai_suggestions: aiResult.suggestions
-      })
-      .select()
-      .single();
-    if (resErr) throw resErr;
-
-    return { _id: result.id };
-  } else {
-    initMongoModels();
-    const resume = await Resume.create({
-      userId,
-      originalName: resumeName,
-      extractedText: resumeText,
-      keywords: resumeKeywords
-    });
-    const jd = await JobDescription.create({
-      userId,
-      text: jobDescription,
-      title: jobTitle,
-      keywords: jobKeywords
-    });
-    const savedResult = await Result.create({
-      resumeId: resume._id,
-      jobDescriptionId: jd._id,
-      originalFileName: resumeName,
-      jobTitle: jobTitle,
-      matchScore: analysis.matchScore,
-      atsScore: atsResult.atsScore,
-      overallScore,
-      matchedKeywords: analysis.matchedKeywords,
-      missingKeywords: analysis.missingKeywords,
-      suggestions: analysis.suggestions,
-      atsChecks: atsResult.checks,
-      aiSuggestions: aiResult.suggestions
-    });
-    return { _id: savedResult._id };
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    
+    // Save Resume
+    const resumeRes = await client.query(
+      'INSERT INTO resumes (user_id, original_name, extracted_text, keywords) VALUES ($1, $2, $3, $4) RETURNING id',
+      [userId, resumeName, resumeText, JSON.stringify(resumeKeywords || [])]
+    );
+    const resumeId = resumeRes.rows[0].id;
+    
+    // Save Job Description
+    const jdRes = await client.query(
+      'INSERT INTO job_descriptions (user_id, title, text, keywords) VALUES ($1, $2, $3, $4) RETURNING id',
+      [userId, jobTitle || 'Untitled Position', jobDescription, JSON.stringify(jobKeywords || [])]
+    );
+    const jdId = jdRes.rows[0].id;
+    
+    // Save Result
+    const resRes = await client.query(
+      `INSERT INTO results (
+        resume_id, job_description_id, original_file_name, job_title,
+        match_score, ats_score, overall_score, matched_keywords,
+        missing_keywords, suggestions, ats_checks, ai_suggestions
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id`,
+      [
+        resumeId,
+        jdId,
+        resumeName,
+        jobTitle || 'Untitled Position',
+        analysis.matchScore,
+        atsResult.atsScore,
+        overallScore,
+        JSON.stringify(analysis.matchedKeywords || []),
+        JSON.stringify(analysis.missingKeywords || []),
+        JSON.stringify(analysis.suggestions || []),
+        JSON.stringify(atsResult.checks || []),
+        JSON.stringify(aiResult.suggestions || [])
+      ]
+    );
+    const resultId = resRes.rows[0].id;
+    
+    await client.query('COMMIT');
+    return { _id: resultId };
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
   }
 }
 
 // 5. Get user history
 async function getUserHistory(userId) {
-  if (isSupabase) {
-    const { data, error } = await supabase
-      .from('results')
-      .select('*, resumes!inner(user_id, original_name), job_descriptions(title)')
-      .eq('resumes.user_id', userId)
-      .order('created_at', { ascending: false })
-      .limit(20);
-    if (error) throw error;
-
-    return data.map(r => ({
-      _id: r.id,
-      resumeId: { _id: r.resume_id, originalName: r.resumes?.original_name },
-      jobDescriptionId: { _id: r.job_description_id, title: r.job_descriptions?.title },
-      originalFileName: r.original_file_name,
-      jobTitle: r.job_title,
-      matchScore: r.match_score,
-      atsScore: r.ats_score,
-      overall_score: r.overall_score,
-      matched_keywords: r.matched_keywords,
-      missing_keywords: r.missing_keywords,
-      suggestions: r.suggestions,
-      atsChecks: r.ats_checks,
-      aiSuggestions: r.ai_suggestions,
-      createdAt: r.created_at
-    }));
-  } else {
-    initMongoModels();
-    const userResumes = await Resume.find({ userId }).select('_id');
-    const resumeIds = userResumes.map(r => r._id);
-    const results = await Result.find({ resumeId: { $in: resumeIds } })
-      .populate('resumeId', 'originalName')
-      .populate('jobDescriptionId', 'title')
-      .sort({ createdAt: -1 })
-      .limit(20);
-    return results;
-  }
+  const query = `
+    SELECT 
+      r.id,
+      r.resume_id,
+      r.job_description_id,
+      r.original_file_name,
+      r.job_title,
+      r.match_score,
+      r.ats_score,
+      r.overall_score,
+      r.matched_keywords,
+      r.missing_keywords,
+      r.suggestions,
+      r.ats_checks,
+      r.ai_suggestions,
+      r.created_at,
+      res.original_name AS resume_original_name,
+      jd.title AS job_description_title
+    FROM results r
+    INNER JOIN resumes res ON r.resume_id = res.id
+    LEFT JOIN job_descriptions jd ON r.job_description_id = jd.id
+    WHERE res.user_id = $1
+    ORDER BY r.created_at DESC
+    LIMIT 20
+  `;
+  const res = await pool.query(query, [userId]);
+  return res.rows.map(r => ({
+    _id: r.id,
+    resumeId: { _id: r.resume_id, originalName: r.resume_original_name },
+    jobDescriptionId: { _id: r.job_description_id, title: r.job_description_title },
+    originalFileName: r.original_file_name,
+    jobTitle: r.job_title,
+    matchScore: r.match_score,
+    atsScore: r.ats_score,
+    overallScore: r.overall_score,
+    matchedKeywords: r.matched_keywords,
+    missingKeywords: r.missing_keywords,
+    suggestions: r.suggestions,
+    atsChecks: r.ats_checks,
+    aiSuggestions: r.ai_suggestions,
+    createdAt: r.created_at
+  }));
 }
 
 module.exports = {
-  isSupabase,
+  pool,
+  initDb,
   registerUser,
   loginUser,
   verifyToken,

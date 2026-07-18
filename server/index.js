@@ -1,5 +1,4 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -54,58 +53,15 @@ app.use((err, req, res, next) => {
 
 // --- DB + Server Start ---
 const PORT = process.env.PORT || 5000;
-const { isSupabase } = require('./services/db');
-let MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/hireflow';
+const { initDb } = require('./services/db');
 
 async function startServer() {
-  if (isSupabase) {
-    console.log('✅  Supabase mode active. Skipping MongoDB connection sequence.');
-  } else {
-    const isDev = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
-    const isLocalHost = !process.env.MONGODB_URI || process.env.MONGODB_URI.includes('localhost') || process.env.MONGODB_URI.includes('127.0.0.1');
-
-    if (isDev && isLocalHost) {
-      try {
-        console.log('Connecting to local MongoDB...');
-        await mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 2000 });
-        console.log('✅  Local MongoDB connected');
-      } catch (err) {
-        console.log('⚠️  Local MongoDB not found. Spinning up persistent MongoDB memory server...');
-        try {
-          const fs = require('fs');
-          const path = require('path');
-          const dbDir = path.join(__dirname, 'db-data');
-          if (!fs.existsSync(dbDir)) {
-            fs.mkdirSync(dbDir, { recursive: true });
-          }
-          
-          const { MongoMemoryServer } = require('mongodb-memory-server');
-          const mongoServer = await MongoMemoryServer.create({
-            instance: {
-              dbPath: dbDir,
-              storageEngine: 'wiredTiger',
-            }
-          });
-          MONGO_URI = mongoServer.getUri();
-          await mongoose.connect(MONGO_URI);
-          console.log('✅  Persistent MongoDB memory server connected at', MONGO_URI);
-        } catch (memErr) {
-          console.error('❌ Failed to start persistent MongoDB memory server:', memErr.message);
-          process.exit(1);
-        }
-      }
-    } else {
-      if (!process.env.MONGODB_URI) {
-        console.error('❌  MONGODB_URI environment variable is not set. Please add it in your hosting dashboard (Render → Environment).');
-        process.exit(1);
-      }
-      try {
-        await mongoose.connect(MONGO_URI);
-        console.log('✅  MongoDB connected');
-      } catch (err) {
-        console.error('❌  MongoDB connection error:', err.message);
-        process.exit(1);
-      }
+  try {
+    await initDb();
+  } catch (err) {
+    console.error('❌ Database connection/initialization error:', err.message);
+    if (process.env.NODE_ENV === 'production') {
+      process.exit(1);
     }
   }
 
