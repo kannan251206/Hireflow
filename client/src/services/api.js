@@ -1,6 +1,13 @@
 import axios from 'axios';
 
 let apiURL = process.env.REACT_APP_API_URL || 'https://hireflow-three-mu.vercel.app/api';
+
+// Ensure the URL starts with http:// or https:// (otherwise Axios treats it as relative)
+if (apiURL && !apiURL.startsWith('http://') && !apiURL.startsWith('https://')) {
+  apiURL = `https://${apiURL}`;
+}
+
+// Ensure it ends with /api
 if (apiURL && !apiURL.endsWith('/api') && !apiURL.endsWith('/api/')) {
   apiURL = apiURL.endsWith('/') ? `${apiURL}api` : `${apiURL}/api`;
 }
