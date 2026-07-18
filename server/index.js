@@ -37,7 +37,11 @@ app.use('/api/auth',      require('./routes/auth'));
 app.use('/api/candidate', require('./routes/candidate'));
 app.use('/api/recruiter', require('./routes/recruiter'));
 
-// --- Health check ---
+// --- Root and Health check ---
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to the HireFlow API!', status: 'ok' });
+});
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });

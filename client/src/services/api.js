@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://hireflow-7ust.onrender.com/api',
+  baseURL: process.env.REACT_APP_API_URL || 'https://hireflow-three-mu.vercel.app/api',
   timeout: 60000
 });
 
