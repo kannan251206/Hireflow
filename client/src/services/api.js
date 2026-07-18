@@ -1,7 +1,12 @@
 import axios from 'axios';
 
+let apiURL = process.env.REACT_APP_API_URL || 'https://hireflow-three-mu.vercel.app/api';
+if (apiURL && !apiURL.endsWith('/api') && !apiURL.endsWith('/api/')) {
+  apiURL = apiURL.endsWith('/') ? `${apiURL}api` : `${apiURL}/api`;
+}
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'https://hireflow-three-mu.vercel.app/api',
+  baseURL: apiURL,
   timeout: 60000
 });
 
